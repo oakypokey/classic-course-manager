@@ -1,0 +1,4 @@
+token.pickle
+.vscode
+*/__pycache__
+credentials.json
