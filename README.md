@@ -1,7 +1,7 @@
+[![Build Status](https://travis-ci.com/oakypokey/class2calendar.svg?branch=master)](https://travis-ci.com/oakypokey/class2calendar) [![Maintainability](https://api.codeclimate.com/v1/badges/e729cf9104fc94b462cc/maintainability)](https://codeclimate.com/github/oakypokey/class2calendar/maintainability)
 # Class 2 Calendar
-[![Build Status](https://travis-ci.com/oakypokey/class2calendar.svg?branch=master)](https://travis-ci.com/oakypokey/class2calendar)
 
-[![Maintainability](https://api.codeclimate.com/v1/badges/e729cf9104fc94b462cc/maintainability)](https://codeclimate.com/github/oakypokey/class2calendar/maintainability)
+
 
 
 ## Summary
