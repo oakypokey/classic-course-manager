@@ -1,11 +1,11 @@
 from flask import Blueprint, render_template, flash, redirect, request
 
-api = Blueprint("api", __name__)
+api_routes = Blueprint("api_routes", __name__)
 
-@api.route("/about")
+@api_routes.route("/about")
 def about():
     return {"something": "value"}
 
-@api.route("")
+@api_routes.route("")
 def register():
     return {"something": "value"}
