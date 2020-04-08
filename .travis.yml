@@ -7,7 +7,7 @@ matrix:
       install:
         - pip install -r requirements.txt
       before_script:
-        - cd api
+        - cd app
       script:
         - pytest
     - language: node_js
