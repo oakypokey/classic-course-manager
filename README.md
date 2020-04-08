@@ -20,7 +20,7 @@
 To run tests for the different components of this project, use the following:
 1. To run tests for the front end using `create-react-app`'s in-built testing suite, use `yarn test` in the root of the project.
 2. To run tests for the back end using `pytest`, navigate to `/app` and run `pytest` in the directory.
-3. Travis CI has been configured already for this project.
+3. Travis CI has been configured already for this project. If you have it enabled for your repo, it should automatically run.
 
 ## Deployment
 In order to deploy the finished application, it is important to build the front end. This can be done using `yarn build` which will create a folder. Flask has been configured to use this as the route directory to serve the front-end application. You can use the associated `Profile` to deploy this project on [Heroku](https://dashboard.heroku.com)
