@@ -14,4 +14,4 @@ def index():
 def something():
     return {"foo": "bar"}
 
-return app
+app.run()
