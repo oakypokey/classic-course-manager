@@ -9,7 +9,7 @@ from api.api_routes import api_routes
 SECRET_KEY = os.getenv("SECRET_KEY", default="super secret")
 
 def create_app():
-    app = Flask(__name__)
+    app = Flask(__name__, static_folder='../build', static_url_path='/')
     app.config["SECRET_KEY"] = SECRET_KEY
     app.register_blueprint(index_route)
     app.register_blueprint(api_routes)

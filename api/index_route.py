@@ -4,4 +4,4 @@ api = Blueprint("api", __name__)
 
 @api.route("/")
 def about():
-    return render_template("../build/index.html")
+    return render_template("index.html")

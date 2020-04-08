@@ -1,4 +1,4 @@
 pytest
 flask
 gunicorn
-dotenv
+python-dotenv
