@@ -13,3 +13,6 @@ def index():
 @app.route('/api/something')
 def something():
     return {"foo": "bar"}
+
+def create_app():
+    return app
