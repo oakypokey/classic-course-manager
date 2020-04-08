@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, flash, redirect, request
 
-api = Blueprint("api", __name__)
+index_route = Blueprint("index", __name__)
 
-@api.route("/")
-def about():
+@index_route.route("/")
+def index():
     return render_template("index.html")
