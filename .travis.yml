@@ -1,8 +1,22 @@
 dist: xenial
-language: python
-python:
-  - "3.7"
-install:
-  - pip install -r requirements.txt
-script:
-  - pytest
+matrix:
+  include:
+    - language: python
+      python: 
+        - "3.7"
+      install:
+        - pip install -r api/requirements.txt
+      before_script:
+        - cd api
+      script:
+        - pytest
+    - language: node_js
+      node_js:
+        - "node"
+      before_script:
+        - yarn install
+      cache:
+        directories:
+          - "node_modules"
+      script:
+        - yarn test
