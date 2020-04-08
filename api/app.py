@@ -4,14 +4,12 @@ from flask import Flask
 
 load_dotenv()
 
-app = Flask(__name__, static_folder='../build', static_url_path='/')
+application = Flask(__name__, static_folder='../build', static_url_path='/')
 
-@app.route('/')
+@application.route('/')
 def index():
-    return app.send_static_file('index.html')
+    return application.send_static_file('index.html')
 
-@app.route('/api/something')
+@application.route('/api/something')
 def something():
     return {"foo": "bar"}
-
-app.run()
