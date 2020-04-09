@@ -13,14 +13,13 @@ import {
   DropdownMenu,
   DropdownItem,
 } from "reactstrap";
-import { prependOnceListener } from "cluster";
 
 export const Navigation: React.FC = () => {
   const [loggedin, setLoggedin] = useState(false);
   const toggle = () => setLoggedin(!loggedin);
   return (
     <>
-      <Navbar pills color="light" light expand="md">
+      <Navbar color="light" light expand="md">
         <NavbarBrand href="/">Classic Course Manager</NavbarBrand>
         <Nav className="mr-auto">
           <NavItem>
