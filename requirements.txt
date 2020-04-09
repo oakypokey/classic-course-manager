@@ -2,3 +2,4 @@ pytest
 flask
 gunicorn
 python-dotenv
+requests
