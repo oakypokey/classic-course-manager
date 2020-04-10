@@ -38,7 +38,19 @@ def getMoreCourseInfo(crn):
     result = {"error": "false"}
     response = requests.get("https://classy.thecorp.org/get-event-source/" + str(crn))
     result["data"] = json.loads(response.text)
-    return json.dumps(result)
+    return result
+
+#Bundle and format
+def getAllCourseInfo(crn):
+    info = getCourseInfo(crn)
+
+    for result in info['results']:
+        result['timings'] = getMoreCourseInfo(result["crn"])["data"]
+        
+    print(json.dumps(info))
+    return json.dumps(info)
+    
+
 
 #END API METHODS
 
@@ -54,11 +66,7 @@ def something():
 
 @app.route('/api/getinfo')
 def get_info():
-    return getCourseInfo(request.args.get('crn', type = str))
-
-@app.route('/api/getcoursetimings')
-def get_timing_info():
-    return getMoreCourseInfo(request.args.get('crn', type = str))
+    return getAllCourseInfo(request.args.get('crn', type = str))
     
 
 def create_app():

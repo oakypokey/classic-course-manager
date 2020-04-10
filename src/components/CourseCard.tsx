@@ -22,6 +22,8 @@ export interface CourseCardProps {
   professorName: string;
   timings?: CourseTimings[];
   conflict?: boolean;
+  crn: string;
+  handleRemoveButtonClick?: any
 }
 
 const CourseCardStyle: React.CSSProperties = {
@@ -45,6 +47,8 @@ export const CourseCard: React.FC<CourseCardProps> = ({
   professorName,
   timings,
   conflict,
+  handleRemoveButtonClick,
+  crn
 }: CourseCardProps) => {
 
   const getTimeString = (date: Date) => {
@@ -84,7 +88,7 @@ export const CourseCard: React.FC<CourseCardProps> = ({
             );
           })}
           
-        <Button color="danger"> Remove </Button>
+        <Button color="danger" onClick={() => {handleRemoveButtonClick(crn)}}> Remove </Button>
       </Card>
     </>
   );
