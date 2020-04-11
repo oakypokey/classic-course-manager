@@ -14,6 +14,8 @@ import {
   CourseTimings,
 } from "./components/CourseCard";
 
+import { CourseSearch } from "./components/CourseSearch";
+
 import {
   Container,
   Row,
@@ -30,6 +32,7 @@ import {
   Input,
   Carousel,
 } from "reactstrap";
+import { CalendarSection } from "./components/CalendarSection";
 
 interface APIResponse {
   error: boolean;
@@ -116,8 +119,8 @@ function App() {
           setInputCRN("");
         });
     } else {
-      setInputCRN("")
-      setRequestError(true)
+      setInputCRN("");
+      setRequestError(true);
     }
   };
 
@@ -130,31 +133,18 @@ function App() {
     setBasket(newState);
   };
 
-  const errorStyle: CSSProperties = {
-    outlineColor: "red",
-  };
-
   return (
     <div className="App">
       <Navigation />
-      {requestError ? "true" : "false"}
-      <Container>
+      <Container fluid>
         <Row>
-          <Col lg={3}>
-            <form onSubmit={(e) => handleCRNSubmit(e)}>
-              <InputGroup>
-                <InputGroupAddon addonType="prepend">
-                  <InputGroupText>CRN</InputGroupText>
-                </InputGroupAddon>
-                <Input
-                  name={"crn"}
-                  value={inputCRN}
-                  onChange={(e) => setInputCRN(e.target.value)}
-                  placeholder="12345"
-                  style={requestError ? errorStyle : undefined}
-                />
-              </InputGroup>
-            </form>
+        <Col lg={3}>
+            <CourseSearch
+              handleCRNSubmit={handleCRNSubmit}
+              setInputCRN={setInputCRN}
+              inputCRN={inputCRN}
+              requestError={requestError}
+            />
             {basket.map((course, index) => {
               return (
                 <CourseCard
@@ -165,7 +155,20 @@ function App() {
               );
             })}
           </Col>
-          <Col lg={9}></Col>
+          <Col lg={3}>
+            {basket.map((course, index) => {
+              return (
+                <CourseCard
+                  key={index}
+                  handleRemoveButtonClick={handleRemoveButtonClick}
+                  {...course}
+                />
+              );
+            })}
+          </Col>
+          <Col lg={6}>
+            <CalendarSection events={basket}/>
+          </Col>
         </Row>
       </Container>
     </div>
