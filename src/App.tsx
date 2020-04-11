@@ -33,7 +33,7 @@ import {
   Carousel,
   UncontrolledAlert,
 } from "reactstrap";
-import { CalendarSection } from "./components/CalendarSection";
+import { CalendarSection, EventProperties } from "./components/CalendarSection";
 
 interface APIResponse {
   error: boolean;
@@ -63,10 +63,66 @@ interface APIResponseTimingsData {
   id: number;
 }
 
+interface AcademicCalEventProperties{
+  start: AcademicCalDateProperties
+  end: AcademicCalDateProperties
+  summary: string
+  description: string
+}
+
+interface AcademicCalDateProperties{
+  date?: string
+  dateTime?: string
+  timeZone?: string
+}
+
+interface AcademicCalEventsResponseProperties{
+  last_fetched: string
+  events: AcademicCalEventProperties[]
+  error: boolean
+  message?: string
+}
+
 function App() {
   const [inputCRN, setInputCRN] = useState("");
   const [basket, setBasket] = useState([] as CourseCardProps[]);
   const [requestError, setRequestError] = useState(false);
+  const [academicCalEvents, setAcademicCalEvents] = useState([] as EventProperties[])
+
+  //Just like component did mount <3
+  useEffect(() => {
+    fetch('/api/getacademiccalinfo').then(res => res.json()).then((response: AcademicCalEventsResponseProperties) => {
+      let AcademicCalEventsProcessed = [] as EventProperties[]
+      if(response.error){
+        console.log("Error when fetching response: " + response.message)
+        return
+      }
+
+      AcademicCalEventsProcessed = response.events.map((event) => {
+        let startTime = new Date()
+        let endTime = new Date()
+
+        if(event.start.date && event.end.date){
+          startTime = new Date(Date.parse(event.start.date))
+          startTime = new Date(Date.parse(event.end.date))
+        } else if(event.start.dateTime && event.end.dateTime) {
+          startTime = new Date(Date.parse(event.start.dateTime))
+          endTime = new Date(Date.parse(event.end.dateTime))
+        }
+      
+        const allDayBool = (startTime.getTime() - endTime.getTime()) > (1000 * 60 * 60 * 23)
+        console.log((startTime.getTime() - endTime.getTime()) > (1000 * 60 * 60 * 23))
+        return {
+          start: startTime,
+          end: endTime,
+          title: event.summary,
+          allDay: allDayBool
+        } as EventProperties
+      })
+      console.log(AcademicCalEventsProcessed)
+      setAcademicCalEvents(AcademicCalEventsProcessed)
+    })
+  }, [])
 
   const handleCRNSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -152,7 +208,7 @@ function App() {
               inputCRN={inputCRN}
               requestError={requestError}
             />
-            {requestError ? <UncontrolledAlert color={"danger"}>
+            {requestError ? <UncontrolledAlert label={"errmsg"} color={"danger"}>
               There was an error. Please try again.
             </UncontrolledAlert> : ''}
           </Col>
@@ -192,7 +248,7 @@ function App() {
             })}
           </Col>
           <Col xl={6} style={sectionStyle}>
-            <CalendarSection events={basket}/>
+            <CalendarSection events={basket} academicCalEvents={academicCalEvents}/>
           </Col>
         </Row>
       </Container>

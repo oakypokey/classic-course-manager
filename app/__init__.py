@@ -1,6 +1,6 @@
 import os
 from dotenv import load_dotenv
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, Response
 import requests
 import json
 from datetime import date
@@ -66,12 +66,11 @@ def something():
 
 @app.route('/api/getinfo')
 def get_info():
-    return getAllCourseInfo(request.args.get('crn', type = str))
+    return Response(getAllCourseInfo(request.args.get('crn', type = str)), mimetype='application/json')
 
 @app.route('/api/getacademiccalinfo')
 def get_academic_cal_info():
-    getAcademicCalendarInfo()
-    return "Check ur console bb"
+    return Response(json.dumps(getAcademicCalendarInfo()), mimetype='application/json')
     
 
 def create_app():

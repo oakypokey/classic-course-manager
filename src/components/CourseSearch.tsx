@@ -22,7 +22,7 @@ export const CourseSearch: React.FC<CourseSearchComponents> = ({
   return (
     <>
     <Container>
-      <form onSubmit={(e) => handleCRNSubmit(e)}>
+      <form onSubmit={(e) => handleCRNSubmit(e)} data-testid={"class-search-form"}>
         <InputGroup>
           <InputGroupAddon addonType="prepend">
             <InputGroupText>CRN</InputGroupText>
@@ -33,6 +33,7 @@ export const CourseSearch: React.FC<CourseSearchComponents> = ({
             onChange={(e) => setInputCRN(e.target.value)}
             placeholder="12345"
             style={requestError ? errorStyle : undefined}
+            data-testid={"crn-input"}
           />
         </InputGroup>
       </form>

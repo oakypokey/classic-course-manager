@@ -13,6 +13,7 @@ GOOGLE_API_KEY=os.environ.get("GOOGLE_API_KEY")
 
 
 def getAcademicCalendarInfo():
+  try:
     OPTIONS = {
       "calendarId": "georgetown.edu_5bdj87g8237emjmvigu4rak1is@group.calendar.google.com",
       "orderBy": "startTime",
@@ -27,4 +28,32 @@ def getAcademicCalendarInfo():
     academic_events = calendar_service.events().list(calendarId=OPTIONS["calendarId"], orderBy=OPTIONS["orderBy"], singleEvents=True, timeMin=OPTIONS["timeMin"], timeMax=OPTIONS["timeMax"]).execute()
 
     # TODO: Process this data so that it can be accepted by front-end
-    return academic_events
+    eventsList = {
+      "last_fetched": datetime.datetime.now().isoformat(),
+      "events": [],
+      "error": False
+    }
+
+    for event in academic_events["items"]:
+      if 'summary' not in event:
+        event["summary"] = "No summary found."
+
+      if 'description' not in event:
+        event["description"] = "No description found"
+      
+      eventsList["events"].append({
+        "start": event["start"],
+        "end": event["end"],
+        "summary": event["summary"],
+        "description": event["description"]
+      })
+
+    return eventsList
+
+  except Exception as e:
+    return {
+      "error": True,
+      "message": e
+    }
+
+    
