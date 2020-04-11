@@ -4,7 +4,7 @@ from flask import Flask, request, jsonify
 import requests
 import json
 from datetime import date
-from academic_cal import getAcademicCalendarInfo
+from app.dataAPI.academic_cal import getAcademicCalendarInfo
 
 load_dotenv()
 
