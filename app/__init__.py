@@ -3,6 +3,8 @@ from dotenv import load_dotenv
 from flask import Flask, request, jsonify
 import requests
 import json
+from datetime import date
+from academic_cal import getAcademicCalendarInfo
 
 load_dotenv()
 
@@ -38,6 +40,7 @@ def getMoreCourseInfo(crn):
     result = {"error": "false"}
     response = requests.get("https://classy.thecorp.org/get-event-source/" + str(crn))
     result["data"] = json.loads(response.text)
+    print(result)
     return result
 
 #Bundle and format
@@ -46,11 +49,8 @@ def getAllCourseInfo(crn):
 
     for result in info['results']:
         result['timings'] = getMoreCourseInfo(result["crn"])["data"]
-        
-    print(json.dumps(info))
-    return json.dumps(info)
-    
 
+    return json.dumps(info)
 
 #END API METHODS
 
@@ -67,6 +67,11 @@ def something():
 @app.route('/api/getinfo')
 def get_info():
     return getAllCourseInfo(request.args.get('crn', type = str))
+
+@app.route('/api/getacademiccalinfo')
+def get_academic_cal_info():
+    getAcademicCalendarInfo()
+    return "Check ur console bb"
     
 
 def create_app():

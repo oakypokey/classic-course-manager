@@ -31,6 +31,7 @@ import {
   InputGroupText,
   Input,
   Carousel,
+  UncontrolledAlert,
 } from "reactstrap";
 import { CalendarSection } from "./components/CalendarSection";
 
@@ -133,18 +134,42 @@ function App() {
     setBasket(newState);
   };
 
+  const sectionStyle: CSSProperties = {
+    borderColor: "grey",
+    borderWidth: "2px",
+    borderStyle: "solid"
+  }
+
   return (
     <div className="App">
       <Navigation />
       <Container fluid>
         <Row>
-        <Col lg={3}>
-            <CourseSearch
+          <Col xl={6}>
+          <CourseSearch
               handleCRNSubmit={handleCRNSubmit}
               setInputCRN={setInputCRN}
               inputCRN={inputCRN}
               requestError={requestError}
             />
+            {requestError ? <UncontrolledAlert color={"danger"}>
+              There was an error. Please try again.
+            </UncontrolledAlert> : ''}
+          </Col>
+          <Col xl={6}>
+            <Container>
+              <Row>
+              <Col xs={4}>Something</Col><Col xs={4}>Something</Col><Col xs={4}>Something</Col>
+              </Row>
+              <Row>
+              <Col xs={4}>Something</Col><Col xs={4}>Something</Col><Col xs={4}>Something</Col>
+              </Row>
+            </Container>
+          </Col>
+        </Row>
+        <Row>
+        <Col xl={3} style={sectionStyle}>
+            
             {basket.map((course, index) => {
               return (
                 <CourseCard
@@ -155,7 +180,7 @@ function App() {
               );
             })}
           </Col>
-          <Col lg={3}>
+          <Col xl={3} style={sectionStyle}>
             {basket.map((course, index) => {
               return (
                 <CourseCard
@@ -166,7 +191,7 @@ function App() {
               );
             })}
           </Col>
-          <Col lg={6}>
+          <Col xl={6} style={sectionStyle}>
             <CalendarSection events={basket}/>
           </Col>
         </Row>
