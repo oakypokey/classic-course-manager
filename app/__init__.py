@@ -50,9 +50,9 @@ auth0 = oauth.register(
 AUTH0_APP_TOKEN = getAuth0AppToken(AUTH0_CLIENT_ID, AUTH0_CLIENT_SECRET)
 
 if(os.environ.get("DEPLOYED", "FALSE") == "TRUE"):
-    REDIRECT_URI = "http://localhost:5000/callback"
-else:
     REDIRECT_URI = "https://classic-course-manager.herokuapp.com/callback"
+else:
+    REDIRECT_URI = "http://localhost:5000/callback"
 
 def requires_auth(f):
   @wraps(f)
