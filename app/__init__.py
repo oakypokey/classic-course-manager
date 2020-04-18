@@ -50,9 +50,9 @@ auth0 = oauth.register(
 AUTH0_APP_TOKEN = getAuth0AppToken(AUTH0_CLIENT_ID, AUTH0_CLIENT_SECRET)
 
 if(os.environ.get("DEPLOYED", "FALSE") == "TRUE"):
-    REDIRECT_URI = "https://classic-course-manager.herokuapp.com/callback"
+    REDIRECT_URI = "https://classic-course-manager.herokuapp.com"
 else:
-    REDIRECT_URI = "http://localhost:5000/callback"
+    REDIRECT_URI = "http://localhost:5000"
 
 def requires_auth(f):
   @wraps(f)
@@ -112,7 +112,7 @@ def callback_handling():
 
 @app.route('/login')
 def login():
-    return auth0.authorize_redirect(redirect_uri=REDIRECT_URI)
+    return auth0.authorize_redirect(redirect_uri=REDIRECT_URI + "/callback")
 
 
 @app.route('/logout')
@@ -120,7 +120,7 @@ def logout():
     # Clear session stored data
     session.clear()
     # Redirect user to logout endpoint
-    params = {'returnTo': "http://localhost:5000/", 'client_id': 'E8QL9VOgqinTgGL7rpgYjkVrWQWhecet'}
+    params = {'returnTo': REDIRECT_URI, 'client_id': 'E8QL9VOgqinTgGL7rpgYjkVrWQWhecet'}
     return redirect("https://oakypokey.auth0.com" + '/v2/logout?' + urlencode(params))
     
 
