@@ -7,10 +7,10 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from dotenv import load_dotenv
 import json
+import os
 
 load_dotenv()
 GOOGLE_API_KEY=os.environ.get("GOOGLE_API_KEY")
-
 
 def getAcademicCalendarInfo():
   try:
@@ -55,5 +55,7 @@ def getAcademicCalendarInfo():
       "error": True,
       "message": e
     }
+
+
 
     

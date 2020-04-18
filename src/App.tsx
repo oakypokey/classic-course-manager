@@ -34,6 +34,7 @@ import {
   UncontrolledAlert,
 } from "reactstrap";
 import { CalendarSection, EventProperties } from "./components/CalendarSection";
+import { Session } from "inspector";
 
 interface APIResponse {
   error: boolean;
@@ -83,11 +84,25 @@ interface AcademicCalEventsResponseProperties{
   message?: string
 }
 
+export interface SessionUserData {
+  email: string
+  email_verified: boolean
+  family_name: string
+  given_name: string
+  locale: string
+  name: string
+  nickname: string
+  picture: string
+  sub: string
+  updated_at: string
+}
+
 function App() {
   const [inputCRN, setInputCRN] = useState("");
   const [basket, setBasket] = useState([] as CourseCardProps[]);
   const [requestError, setRequestError] = useState(false);
   const [academicCalEvents, setAcademicCalEvents] = useState([] as EventProperties[])
+  const [userData, setUserData] = useState({} as SessionUserData)
 
   //Just like component did mount <3
   useEffect(() => {
@@ -121,6 +136,8 @@ function App() {
       })
       console.log(AcademicCalEventsProcessed)
       setAcademicCalEvents(AcademicCalEventsProcessed)
+
+      fetch('/api/user_data').then(res => res.json()).then(data => {setUserData(data.session as SessionUserData)})
     })
   }, [])
 
@@ -198,7 +215,7 @@ function App() {
 
   return (
     <div className="App">
-      <Navigation />
+      <Navigation userData={userData}/>
       <Container fluid>
         <Row>
           <Col xl={6}>
