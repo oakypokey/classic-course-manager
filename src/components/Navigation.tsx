@@ -13,8 +13,13 @@ import {
   DropdownMenu,
   DropdownItem,
 } from "reactstrap";
+import { SessionUserData }  from '../App'
 
-export const Navigation: React.FC = () => {
+interface NavigationProps {
+  userData: SessionUserData
+}
+
+export const Navigation: React.FC<NavigationProps> = ({ userData }: NavigationProps) => {
   const [loggedin, setLoggedin] = useState(false);
   const toggle = () => setLoggedin(!loggedin);
   return (
@@ -32,43 +37,43 @@ export const Navigation: React.FC = () => {
             <NavLink> Help </NavLink>
           </NavItem>
         </Nav>
-        {loggedin ? (
           <UserBadge
-            url="https://picsum.photos/35"
-            toggle={toggle}
+            userData={userData}
           />
-        ) : (
-          <Button onClick={toggle} color="primary">
-            {" "}
-            Login{" "}
-          </Button>
-        )}
       </Navbar>
     </>
   );
 };
 
 interface UserBadgeProps {
-  url: string;
-  toggle: any;
+  userData: SessionUserData
 }
 
 const userStyle: React.CSSProperties = {
-  borderRadius: "50%"
+  borderRadius: "50%",
+  maxWidth: "45px",
+  float: "left",
+  display: "inline-box"
+}
+
+const userBadgeStyle: React.CSSProperties = {
+  float: "right",
+  marginTop: "10px",
+  marginLeft: "5px"
 }
 
 const UserBadge: React.FC<UserBadgeProps> = ({
-  url,
-  toggle,
+  userData
 }: UserBadgeProps) => {
   return (
     <>
       <UncontrolledDropdown inNavbar>
         <DropdownToggle color="light">
-          <Media  style={userStyle} right object src={url} alt="Generic placeholder image" />
+          <Media style={userStyle} right object src={userData.picture} alt="User Image" />
+          <p style={userBadgeStyle}><b>{userData.given_name}</b></p>
         </DropdownToggle>
         <DropdownMenu right>
-          <DropdownItem onClick={toggle}>Logout</DropdownItem>
+          <DropdownItem href="/logout"> Logout </DropdownItem>
         </DropdownMenu>
       </UncontrolledDropdown>
     </>
