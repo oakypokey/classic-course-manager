@@ -1,9 +1,6 @@
 import os
 from dotenv import load_dotenv, find_dotenv
-
-
-
-import requests
+import requests as rq
 import json
 from datetime import date
 from app.dataAPI.academic_cal import getAcademicCalendarInfo
@@ -24,7 +21,16 @@ from os import environ as env
 from werkzeug.exceptions import HTTPException
 from authlib.integrations.flask_client import OAuth
 from six.moves.urllib.parse import urlencode
-from oauthlib.oauth2 import BearerToken as bt
+from google.auth.credentials import Credentials
+from googleapiclient.discovery import build
+from google.auth import crypt
+from google.auth import jwt
+import google_auth_oauthlib.flow
+from google.oauth2 import id_token
+from google.auth.transport import requests
+from app.dataAPI.user_cal_methods import get_user_calendar_book, get_user_calendar_events
+
+import datetime
 
 load_dotenv()
 AUTH0_CLIENT_ID = os.environ.get("AUTH0_CLIENT_ID")
@@ -103,8 +109,10 @@ def callback_handling():
 
     if (('google-idap' not in session) and (not AUTH0_APP_TOKEN["error"] == True)):
         print("Getting IDAP")
-        user_data = getAuth0UserData(AUTH0_APP_TOKEN["data"], session['profile']['user_id'])["data"]["identities"][0]
-        session['google-idap'] = user_data['access_token']
+        session['full_user_data'] = getAuth0UserData(AUTH0_APP_TOKEN["data"], session['profile']['user_id'])
+        user_data = session['full_user_data']["data"]["identities"][0]
+        session['google-idap'] = user_data
+        #session['google-idap']['expires_in'] = datetime.datetime.now() + session['google-idap']['expires_in']
     elif(AUTH0_APP_TOKEN["error"]):
         print(AUTH0_APP_TOKEN["message"])
 
@@ -112,8 +120,8 @@ def callback_handling():
 
 @app.route('/login')
 def login():
+    print(auth0.authorize_redirect(redirect_uri=REDIRECT_URI + "/callback"))
     return auth0.authorize_redirect(redirect_uri=REDIRECT_URI + "/callback")
-
 
 @app.route('/logout')
 def logout():
@@ -130,8 +138,38 @@ def user_data():
     response = {} #just to init
     # Store the user information in flask session.
     response["session"] = session['jwt_payload']
+    response['google-idap'] = session['google-idap']
+    response['full_user_data'] = session['full_user_data']
+    try:
+        response1 = get_user_calendar_book(session['google-idap']['access_token'])
+        response2 = get_user_calendar_events(session['google-idap']['access_token'], "cod11@georgetown.edu")
+
+        response['calendar-book'] = response1
+        response['calendar-events'] = response2
+
+    except Exception as e:
+        print(e)
+
     return Response(json.dumps(response), mimetype='application/json')
 
+def getServiceAccountInfo():
+    response = {
+        "type": "",
+        "project_id": "",
+        "private_key_id": "",
+        "private_key": "",
+        "client_email": "",
+        "client_id": "",
+        "auth_uri": "",
+        "token_uri": "",
+        "auth_provider_x509_cert_url": "",
+        "client_x509_cert_url": ""
+    }
+
+    for key in response.keys():
+        response[key] = os.environ.get(key, "")
+    
+    return response
 
 def create_app():
     return app
