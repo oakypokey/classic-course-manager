@@ -115,7 +115,6 @@ def makeAcademicCalApiCall():
     # pylint: disable=no-member
     academic_events = calendar_service.events().list(calendarId=OPTIONS["calendarId"], orderBy=OPTIONS["orderBy"], singleEvents=True, timeMin=OPTIONS["timeMin"], timeMax=OPTIONS["timeMax"]).execute()
 
-    # TODO: Process this data so that it can be accepted by front-end
     eventsList = {
       "last_fetched": datetime.datetime.now().isoformat(),
       "events": [],
