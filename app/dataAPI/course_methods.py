@@ -1,6 +1,7 @@
 import requests
 import json
 from app.dataAPI.academic_cal import getAcademicCalendarInfo
+from dateutil.rrule import rrule, DAILY
 
 BASE_URL = "https://classy.thecorp.org/search-submit/"
 BASE_OPTIONS = {
@@ -32,6 +33,10 @@ def getMoreCourseInfo(crn):
     result = {"error": "false"}
     response = requests.get("https://classy.thecorp.org/get-event-source/" + str(crn))
     result["data"] = json.loads(response.text)
+
+    # freq, dtstart, until, wkst
+    print(rrule(freq=DAILY))
+
     print(result)
     return result
 

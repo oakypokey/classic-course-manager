@@ -3,7 +3,7 @@ from dotenv import load_dotenv, find_dotenv
 import requests as rq
 import json
 from datetime import date
-from app.dataAPI.academic_cal import getAcademicCalendarInfo
+from app.dataAPI.academic_cal import getAcademicCalendarInfo, getImportantEvents
 from app.dataAPI.course_methods import getAllCourseInfo
 from app.dataAPI.auth0_api import getAuth0AppToken
 from app.dataAPI.auth0_api import getAuth0UserData
@@ -28,7 +28,7 @@ from google.auth import jwt
 import google_auth_oauthlib.flow
 from google.oauth2 import id_token
 from google.auth.transport import requests
-from app.dataAPI.user_cal_methods import get_user_calendar_book, get_user_calendar_events
+from app.dataAPI.user_cal_methods import get_user_calendar_book, get_user_calendar_events, insert_user_calendar_events
 
 import datetime
 
@@ -141,12 +141,15 @@ def user_data():
     response['google-idap'] = session['google-idap']
     response['full_user_data'] = session['full_user_data']
     try:
-        response1 = get_user_calendar_book(session['google-idap']['access_token'])
-        response2 = get_user_calendar_events(session['google-idap']['access_token'], "cod11@georgetown.edu")
+        #response1 = get_user_calendar_book(session['google-idap']['access_token'])
+        #response2 = get_user_calendar_events(session['google-idap']['access_token'], "cod11@georgetown.edu")
 
-        response['calendar-book'] = response1
-        response['calendar-events'] = response2
+        #response['calendar-book'] = response1
+        #response['calendar-events'] = response2
+        #insert_user_calendar_events(session['google-idap']['access_token'], {"id":"cod11@georgetown.edu"}, [1])
 
+        response["academic_cal"] = getAcademicCalendarInfo()
+        response["important_events"] = getImportantEvents()
     except Exception as e:
         print(e)
 

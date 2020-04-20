@@ -13,6 +13,38 @@ import os
 load_dotenv()
 GOOGLE_API_KEY=os.environ.get("GOOGLE_API_KEY")
 
+def getImportantEvents():
+  academicCal = getAcademicCalendarInfo()
+  importantEvents = []
+
+  if academicCal["error"]:
+    return
+  
+  #First get the semester start and end dates
+  for event in academicCal["events"]:
+    if event["summary"].find("Classes Begin") != -1:
+      importantEvents.append(event)
+    
+    if event["summary"].find("Classes End") != -1:
+      importantEvents.append(event)
+
+    if event["summary"].find("Holiday:") != -1:
+      importantEvents.append(event)
+
+    if event["summary"].find("Thanksgiving") != -1:
+      importantEvents.append(event)
+
+    if event["summary"].find("Spring Break") != -1:
+      importantEvents.append(event)
+
+    if event["summary"].find("Classes Resume") != -1:
+      importantEvents.append(event)
+    
+    if event["summary"].find("Easter") != -1:
+      importantEvents.append(event)
+
+  return importantEvents
+
 def getAcademicCalendarInfo(): 
   try:
     response = {}
