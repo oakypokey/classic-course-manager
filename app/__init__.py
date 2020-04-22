@@ -29,7 +29,7 @@ import google_auth_oauthlib.flow
 from google.oauth2 import id_token
 from google.auth.transport import requests
 from app.dataAPI.user_cal_methods import get_user_calendar_book, get_user_calendar_events, insert_user_calendar_events
-from flask_cors import CORS
+#from flask_cors import CORS
 import datetime
 
 load_dotenv()
@@ -39,7 +39,7 @@ AUTH0_CLIENT_SECRET = os.environ.get("AUTH0_CLIENT_SECRET")
 app = Flask(__name__ , static_folder='../build', static_url_path='/')
 app.secret_key = AUTH0_CLIENT_SECRET
 
-CORS(app) #delete later
+#CORS(app) #delete later
 
 
 oauth = OAuth(app)
