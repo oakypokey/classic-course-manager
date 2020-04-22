@@ -24,6 +24,8 @@ export interface CourseCardProps {
   conflict?: boolean;
   crn: string;
   handleRemoveButtonClick?: any
+  handleAddButtonClick?: any
+  basket: boolean
 }
 
 const CourseCardStyle: React.CSSProperties = {
@@ -48,7 +50,9 @@ export const CourseCard: React.FC<CourseCardProps> = ({
   timings,
   conflict,
   handleRemoveButtonClick,
-  crn
+  handleAddButtonClick,
+  crn,
+  basket
 }: CourseCardProps) => {
 
   const getTimeString = (date: Date) => {
@@ -87,8 +91,10 @@ export const CourseCard: React.FC<CourseCardProps> = ({
               </CardSubtitle>
             );
           })}
-          
-        <Button color="danger" onClick={() => {handleRemoveButtonClick(crn)}}> Remove </Button>
+          {
+            basket ? <Button color="danger" onClick={() => {handleRemoveButtonClick(crn)}}> Remove from Basket </Button> : <Button color="primary" onClick={() => {handleAddButtonClick(crn)}}> Add to Basket </Button>
+          }
+        
       </Card>
     </>
   );

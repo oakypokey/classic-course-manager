@@ -22,9 +22,13 @@ BASE_OPTIONS = {
 }
 
 ## Get course information
-def getCourseInfo(crn):
+def getCourseInfo(values):
     data = BASE_OPTIONS.copy()
-    data["crn"] = crn
+    data["crn"] = values['crn']
+    data['class_name'] = values['class_name']
+    data['prof_name'] = values['prof_name']
+    data['department'] = values['dep_name']
+
     response = requests.post(BASE_URL, data=data)
     return response.json()
 
@@ -41,8 +45,12 @@ def getMoreCourseInfo(crn):
     return result
 
 #Bundle and format
-def getAllCourseInfo(crn):
-    info = getCourseInfo(crn)
+def getAllCourseInfo(values):
+    info = getCourseInfo(values)
+
+    if info["error"]:
+        print(info)
+        return info
 
     for result in info['results']:
         result['timings'] = getMoreCourseInfo(result["crn"])["data"]

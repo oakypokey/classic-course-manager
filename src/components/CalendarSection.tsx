@@ -72,7 +72,6 @@ export const CalendarSection: React.FC<CalendarSectionProps> = ({
     });
 
     result.defaultDate = events[0].start
-    console.log(result.defaultDate)
 
     let startHour = (events[0].start.getHours() - 1).toString();
     let startMin = events[0].start.getMinutes().toString();

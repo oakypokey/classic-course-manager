@@ -29,7 +29,7 @@ import google_auth_oauthlib.flow
 from google.oauth2 import id_token
 from google.auth.transport import requests
 from app.dataAPI.user_cal_methods import get_user_calendar_book, get_user_calendar_events, insert_user_calendar_events
-
+from flask_cors import CORS
 import datetime
 
 load_dotenv()
@@ -39,8 +39,12 @@ AUTH0_CLIENT_SECRET = os.environ.get("AUTH0_CLIENT_SECRET")
 app = Flask(__name__ , static_folder='../build', static_url_path='/')
 app.secret_key = AUTH0_CLIENT_SECRET
 
-oauth = OAuth(app)
+CORS(app) #delete later
 
+
+oauth = OAuth(app)
+# https://developers.google.com/calendar/v3/reference/events/insert
+# https://dateutil.readthedocs.io/en/stable/rrule.html
 auth0 = oauth.register(
     'auth0',
     client_id=AUTH0_CLIENT_ID,
@@ -70,6 +74,7 @@ def requires_auth(f):
 
   return decorated
 
+###### PAGE ROUTES ######
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -79,18 +84,7 @@ def index():
 def dashboard():
     return app.send_static_file('index.html')
 
-@app.route('/api/something')
-def something():
-    return {"foo": "bar"}
-
-@app.route('/api/getinfo')
-def get_info():
-    return Response(getAllCourseInfo(request.args.get('crn', type = str)), mimetype='application/json')
-
-@app.route('/api/getacademiccalinfo')
-def get_academic_cal_info():
-    return Response(json.dumps(getAcademicCalendarInfo()), mimetype='application/json')
-
+###### AUTH ROUTES ######
 @app.route('/callback')
 def callback_handling():
     # Handles response from token endpoint
@@ -130,7 +124,17 @@ def logout():
     # Redirect user to logout endpoint
     params = {'returnTo': REDIRECT_URI, 'client_id': 'E8QL9VOgqinTgGL7rpgYjkVrWQWhecet'}
     return redirect("https://oakypokey.auth0.com" + '/v2/logout?' + urlencode(params))
-    
+
+###### API ROUTES ######
+@app.route('/api/getinfo', methods=['POST'])
+def get_info():
+    values = request.json
+
+    return Response(getAllCourseInfo(values), mimetype='application/json')
+
+@app.route('/api/getacademiccalinfo')
+def get_academic_cal_info():
+    return Response(json.dumps(getAcademicCalendarInfo()), mimetype='application/json')
 
 @app.route('/api/user_data')
 @requires_auth
@@ -140,6 +144,7 @@ def user_data():
     response["session"] = session['jwt_payload']
     response['google-idap'] = session['google-idap']
     response['full_user_data'] = session['full_user_data']
+    response['user_calendar_book'] = get_user_calendar_book(session['google-idap']['access_token'])
     try:
         #response1 = get_user_calendar_book(session['google-idap']['access_token'])
         #response2 = get_user_calendar_events(session['google-idap']['access_token'], "cod11@georgetown.edu")
@@ -150,11 +155,21 @@ def user_data():
 
         response["academic_cal"] = getAcademicCalendarInfo()
         response["important_events"] = getImportantEvents()
+        
     except Exception as e:
         print(e)
 
     return Response(json.dumps(response), mimetype='application/json')
 
+@app.route('/api/user_events', methods= ['POST'])
+@requires_auth
+def post_user_events():
+    print(request.json())
+    #body = request.json()
+    #response = insert_user_calendar_events(session['google-idap']['access_token'], calendar=body['calendar_id'], events_array=body['basket'])
+    #return Response(json.dumps(response), mimetype='application/json')
+
+###### HELPER METHODS ######
 def getServiceAccountInfo():
     response = {
         "type": "",
@@ -173,6 +188,7 @@ def getServiceAccountInfo():
         response[key] = os.environ.get(key, "")
     
     return response
+
 
 def create_app():
     return app

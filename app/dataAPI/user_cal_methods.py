@@ -7,8 +7,11 @@ def get_user_calendar_book(access_token):
     blacklist = ["georgetown.edu_5bdj87g8237emjmvigu4rak1is@group.calendar.google.com", "addressbook#contacts@group.v.calendar.google.com"]
     headers = headers = {"Authorization": "Bearer " + access_token}
     response = requests.get("https://www.googleapis.com/calendar/v3/users/me/calendarList", headers=headers)
+    result = response.json()
+    print(result)
 
-    print(response.json())
+    if 'error' in result:
+        return result
 
     processed = response.json()["items"]
     final = []

@@ -16,6 +16,7 @@ GOOGLE_API_KEY=os.environ.get("GOOGLE_API_KEY")
 def getImportantEvents():
   academicCal = getAcademicCalendarInfo()
   importantEvents = []
+  result = {}
 
   if academicCal["error"]:
     return
@@ -43,7 +44,39 @@ def getImportantEvents():
     if event["summary"].find("Easter") != -1:
       importantEvents.append(event)
 
-  return importantEvents
+  result["important_events"] = importantEvents
+  
+  # Calculate blacklisted days
+  next_year = datetime.datetime.now().year + 1
+  new_year = datetime.datetime(next_year, 1, 1)
+  print(new_year.timestamp())
+
+  fall_semester = []
+  spring_semester = []
+
+  for event in importantEvents:
+    fall_sem_bool = int(datetimeparse(event['start']['datetime']).timestamp()) < int(new_year.timestamp())
+    if fall_sem_bool:
+      fall_semester.append(event)
+    else:
+      spring_semester.append(event)
+    
+  #Sort the events
+  def returnStartTime(e):
+    return e["start"]
+
+  fall_semester.sort(key=returnStartTime)
+  spring_semester.sort(key=returnStartTime)
+
+
+  periods = {
+    "fall_semester": fall_semester,
+    "spring_semester": spring_semester
+  }
+
+  result["periods"] = periods
+
+  return result
 
 def getAcademicCalendarInfo(): 
   try:
@@ -127,6 +160,12 @@ def makeAcademicCalApiCall():
 
       if 'description' not in event:
         event["description"] = "No description found"
+
+      if 'date' in event['start']:
+        event['start']['datetime'] = event['start']['date']
+      
+      if 'date' in event['end']:
+        event['end']['datetime'] = event['end']['date']
       
       eventsList["events"].append({
         "start": event["start"],
