@@ -37,6 +37,7 @@ import {
   DropdownMenu,
   DropdownItem,
   UncontrolledDropdown,
+  Spinner,
 } from "reactstrap";
 import { CalendarSection, EventProperties } from "./components/CalendarSection";
 import { URLSearchParams } from "url";
@@ -131,6 +132,7 @@ function App() {
   );
   const [userData, setUserData] = useState({} as SessionUserData);
   const [selectedCalendar, setSelectedCalendar] = useState(defaultUserCalendarBookItem as UserCalendarBookItem)
+  const [loading, setLoading] = useState(false)
 
   const valuesDefault = {
     dep_name: "",
@@ -203,6 +205,8 @@ function App() {
   const handleSubmit = (e: React.FormEvent, values: FormValues) => {
     e.preventDefault();
     setRequestError(false);
+    setLoading(true)
+    setSearch([])
     if (
       basket.filter((course) => {
         return course.crn == inputCRN;
@@ -263,7 +267,8 @@ function App() {
           console.log("OOOO", err);
         })
         .finally(() => {
-
+          setValues(valuesDefault)
+          setLoading(false)
         });
     } else {
       setRequestError(true);
@@ -296,9 +301,11 @@ function App() {
   }
 
   const sectionStyle: CSSProperties = {
-    borderColor: "grey",
+    borderColor: "grey", //"#a6e3e9",
     borderWidth: "2px",
     borderStyle: "solid",
+    height: "80vh",
+    //backgroundColor: "#e3fdfd"
   };
 
   const getCalSelectStyle = (cal: UserCalendarBookItem) => {
@@ -329,12 +336,15 @@ function App() {
           </Col>
         </Row>
         <Row>
-          <Col xl={2} style={sectionStyle}>
+          <Col xl={2} style={{...sectionStyle, overflowY: "auto"}}>
+            {loading ? <Spinner style={{ width: '8rem', height: '8rem', marginTop: "100%" }}/> : ""}
             {search.map((course, index) => {
+              //prevents showing ones we already have added
               let basketCRNs = basket.map(course => course.crn)
               if(basketCRNs.includes(course.crn)){
                 return;
               }
+
               return (
                 <CourseCard
                   key={index}

@@ -57,10 +57,11 @@ export const CourseSearch: React.FC<CourseSearchComponents> = ({
 
   return (
     <>
-      <Container fluid>
+      <Container fluid style={{background: "#cbf1f5"}}>
         <Form
           onSubmit={(e) => handleFormSubmit(e)}
           data-testid={"class-search-form"}
+          style={{padding: "13px", width: "100%"}}
         >
           <Row>
             <Col xl={2}>

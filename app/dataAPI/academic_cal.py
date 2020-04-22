@@ -47,36 +47,41 @@ def getImportantEvents():
   result["important_events"] = importantEvents
   
   # Calculate blacklisted days
-  next_year = datetime.datetime.now().year + 1
-  new_year = datetime.datetime(next_year, 1, 1)
-  print(new_year.timestamp())
-
   fall_semester = []
   spring_semester = []
 
   for event in importantEvents:
-    fall_sem_bool = int(datetimeparse(event['start']['datetime']).timestamp()) < int(new_year.timestamp())
-    if fall_sem_bool:
+    event_date = datetimeparse(event['start']['datetime'])
+
+    if (event_date.month > 7):
       fall_semester.append(event)
+  
     else:
       spring_semester.append(event)
-    
-  #Sort the events
-  def returnStartTime(e):
-    return e["start"]
 
-  fall_semester.sort(key=returnStartTime)
-  spring_semester.sort(key=returnStartTime)
-
+  
 
   periods = {
-    "fall_semester": fall_semester,
-    "spring_semester": spring_semester
+    "fall_semester": getStartEnd(fall_semester),
+    "spring_semester": getStartEnd(spring_semester)
   }
 
   result["periods"] = periods
 
   return result
+
+def getStartEnd(events):
+  result = {}
+  for event in events:
+    if(str.lower(event['summary']).find("classes begin") != -1):
+      result["start"] = event
+    
+
+    if(str.lower(event['summary']).find("classes end") != -1):
+      result["end"] = event
+
+  return result
+
 
 def getAcademicCalendarInfo(): 
   try:
@@ -91,7 +96,7 @@ def getAcademicCalendarInfo():
         success = writeToFile(response)
 
     age = datetime.datetime.now().timestamp() - datetimeparse(response['last_fetched']).timestamp()
-    print(age)
+
     if (age > (60 * 60 * 23)): #update every 24 hours lol
       response = makeAcademicCalApiCall()
       if(response['error'] == True):

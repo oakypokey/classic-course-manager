@@ -1,7 +1,9 @@
 import requests
 import json
-from app.dataAPI.academic_cal import getAcademicCalendarInfo
+from app.dataAPI.academic_cal import getAcademicCalendarInfo, getImportantEvents
 from dateutil.rrule import rrule, DAILY
+from dateutil.parser import parse as datetimeparser
+import datetime
 
 BASE_URL = "https://classy.thecorp.org/search-submit/"
 BASE_OPTIONS = {
@@ -39,9 +41,6 @@ def getMoreCourseInfo(crn):
     result["data"] = json.loads(response.text)
 
     # freq, dtstart, until, wkst
-    print(rrule(freq=DAILY))
-
-    print(result)
     return result
 
 #Bundle and format
@@ -53,6 +52,36 @@ def getAllCourseInfo(values):
         return info
 
     for result in info['results']:
-        result['timings'] = getMoreCourseInfo(result["crn"])["data"]
+        result['timings'] = processDate(getMoreCourseInfo(result["crn"])["data"])
 
     return json.dumps(info)
+
+def processDate(timings):
+    important_dates = getImportantEvents()
+    
+    # figure out what semester it is
+    now = datetime.datetime.now().timestamp()
+    compare = []
+    curr_sem = "N"
+
+    for sem in important_dates['periods'].keys():
+        processed = datetimeparser(important_dates['periods'][sem]['start']['start']['datetime'])
+        compare.append({
+            "value": abs(processed.timestamp() - now),
+            "name": sem
+        })    
+
+    if(compare[0]['value'] > compare[1]['value']):
+        curr_sem = compare[1]['name']
+    else:
+        curr_sem = compare[0]['name']
+    
+    current_important_dates = important_dates['periods'][curr_sem]
+    
+    for instance in timings:
+        weekday = datetimeparser(instance['start']).weekday
+        start = datetimeparser(instance['start']).time().isoformat().split(".")[0]
+        end = datetimeparser(instance['end']).time().isoformat().split(".")[0]
+
+    return timings
+

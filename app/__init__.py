@@ -114,7 +114,6 @@ def callback_handling():
 
 @app.route('/login')
 def login():
-    print(auth0.authorize_redirect(redirect_uri=REDIRECT_URI + "/callback"))
     return auth0.authorize_redirect(redirect_uri=REDIRECT_URI + "/callback")
 
 @app.route('/logout')
@@ -155,9 +154,11 @@ def user_data():
 
         response["academic_cal"] = getAcademicCalendarInfo()
         response["important_events"] = getImportantEvents()
+
+        print(datetime.datetime.now().time().isoformat())
         
     except Exception as e:
-        print(e)
+        print(e, e.__traceback__.tb_lineno)
 
     return Response(json.dumps(response), mimetype='application/json')
 

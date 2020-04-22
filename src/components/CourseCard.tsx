@@ -31,7 +31,9 @@ export interface CourseCardProps {
 const CourseCardStyle: React.CSSProperties = {
   padding: "10px",
   margin: "5px",
-  textAlign: "left"
+  textAlign: "left",
+  borderRadius: "5px",
+  borderColor: "#000000"
 };
 
 const TimingStyle: React.CSSProperties = {
@@ -41,6 +43,11 @@ const TimingStyle: React.CSSProperties = {
 const ConflictStyle: React.CSSProperties = {
   width: "40%"
 };
+
+const getWeekDayName = (number: number) => {
+  const weekdays = ["SUN", "MON", "TUES", "WED", "THURS", "FRI"]
+  return weekdays[number]
+}
 
 export const CourseCard: React.FC<CourseCardProps> = ({
   courseName,
@@ -87,7 +94,7 @@ export const CourseCard: React.FC<CourseCardProps> = ({
           {timings?.map((time, index) => {
             return (
               <CardSubtitle key={index} style={TimingStyle}>
-                {time.weekday}: {getTimeString(time.start)} to {getTimeString(time.end)}
+                {getWeekDayName(time.weekday)}: {getTimeString(time.start)} to {getTimeString(time.end)}
               </CardSubtitle>
             );
           })}
