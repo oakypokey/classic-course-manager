@@ -29,6 +29,7 @@ export const CalendarSection: React.FC<CalendarSectionProps> = ({
 }: CalendarSectionProps) => {
     const [defaultDate, setDefaultDate] = useState(new Date())
     const calendarRef: React.RefObject<FullCalendar> = React.createRef()
+    const [allEvents, setAllEvents] = useState(academicCalEvents)
 
   useEffect(() => {
       //TODO: accomodate for course events as well
@@ -46,15 +47,47 @@ export const CalendarSection: React.FC<CalendarSectionProps> = ({
         }
         
       }
-  }, [academicCalEvents])
 
-  const allEvents = academicCalEvents;
+      setAllEvents(academicCalEvents)
+  }, [academicCalEvents])
 
   interface resultProperties {
     startTime: string;
     endTime: string;
     defaultDate: Date;
   }
+
+  useEffect(() => {
+    let newEventState: EventProperties[] = []
+
+    const timeFix = events.map((event) => {
+      let newEvent = event
+      let newTimings = event.timings?.map((e) => {
+        return {
+          start: new Date(e.start),
+          end: new Date(e.end),
+          weekday: e.weekday
+        }
+      })
+      
+      newEvent.timings = newTimings
+      return newEvent
+    })
+
+    timeFix.forEach((course) => {
+      course.timings?.forEach((session) => {
+        newEventState.push({
+          start: session.start,
+          end: session.end,
+          title: course.courseName,
+          allDay: false
+        })
+      })
+    })
+    
+    console.log("this is new event state", newEventState)
+    setAllEvents([...academicCalEvents, ...newEventState])
+  }, [events])
 
   const getStartEndTime = (events: EventProperties[]): resultProperties => {
     let result = {

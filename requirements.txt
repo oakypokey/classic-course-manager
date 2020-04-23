@@ -9,3 +9,4 @@ google-auth-oauthlib
 authlib
 six
 python-dateutil
+auth0-python

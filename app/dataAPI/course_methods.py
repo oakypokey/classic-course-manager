@@ -51,13 +51,17 @@ def getAllCourseInfo(values):
         print(info)
         return info
 
+    print(info)
+
     for result in info['results']:
         result['timings'] = processDate(getMoreCourseInfo(result["crn"])["data"])
 
+    
     return json.dumps(info)
 
 def processDate(timings):
     important_dates = getImportantEvents()
+    result = timings
     
     # figure out what semester it is
     now = datetime.datetime.now().timestamp()
@@ -77,11 +81,28 @@ def processDate(timings):
         curr_sem = compare[0]['name']
     
     current_important_dates = important_dates['periods'][curr_sem]
-    
-    for instance in timings:
-        weekday = datetimeparser(instance['start']).weekday
-        start = datetimeparser(instance['start']).time().isoformat().split(".")[0]
-        end = datetimeparser(instance['end']).time().isoformat().split(".")[0]
 
-    return timings
+    for instance in result:
+        gen_start_date = datetimeparser(current_important_dates["start"]["start"]["datetime"])
+        weekdayNo = datetimeparser(instance['start']).weekday()
+        start = datetimeparser(instance['start']).time().isoformat().split(".")[0].split(":")
+        end = datetimeparser(instance['end']).time().isoformat().split(".")[0].split(":")
+
+        test = gen_start_date.weekday()
+
+        while test != weekdayNo:
+            print(gen_start_date)
+            gen_start_date = gen_start_date.replace(day=(gen_start_date.day - 1))
+            test = gen_start_date.weekday()
+
+        gen_start_time = gen_start_date
+        gen_end_time = gen_start_date
+
+        gen_start_time = gen_start_time.replace(hour=int(start[0]), minute=int(start[1]))
+        gen_end_time = gen_end_time.replace(hour=int(end[0]), minute=int(end[1]))
+
+        instance['start'] = gen_start_time.isoformat()
+        instance['end'] = gen_end_time.isoformat()
+
+    return result
 
