@@ -196,12 +196,12 @@ def user_data():
     """
     response = {}  # just to init
     # Store the user information in flask session.
+    response["session"] = session['jwt_payload']
     response['full_user_data'] = session['full_user_data']
     response['user_calendar_book'] = get_user_calendar_book(
         session['google-idap']['access_token'])
     try:
-        """ response1 = get_user_calendar_book(
-            session['google-idap']['access_token'])
+        """
         response2 = get_user_calendar_events(
             session['google-idap']['access_token'], "cod11@georgetown.edu")
 
