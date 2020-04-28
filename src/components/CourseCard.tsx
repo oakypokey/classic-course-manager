@@ -13,6 +13,8 @@ export interface CourseTimings {
   weekday: number
   start: Date
   end: Date
+  rrule?: string
+  duration: string
 }
 
 export interface CourseCardProps {
@@ -26,15 +28,8 @@ export interface CourseCardProps {
   handleRemoveButtonClick?: any
   handleAddButtonClick?: any
   basket: boolean
+  color: string
 }
-
-const CourseCardStyle: React.CSSProperties = {
-  padding: "10px",
-  margin: "5px",
-  textAlign: "left",
-  borderRadius: "5px",
-  borderColor: "#000000"
-};
 
 const TimingStyle: React.CSSProperties = {
   fontSize: "0.85vw"
@@ -59,8 +54,18 @@ export const CourseCard: React.FC<CourseCardProps> = ({
   handleRemoveButtonClick,
   handleAddButtonClick,
   crn,
-  basket
+  basket,
+  color
 }: CourseCardProps) => {
+
+  const CourseCardStyle: React.CSSProperties = {
+    padding: "10px",
+    margin: "5px",
+    textAlign: "left",
+    borderRadius: "5px",
+    borderColor: "#000000",
+    backgroundColor: color
+  };
 
   const getTimeString = (date: Date) => {
     let hours = date.getHours();

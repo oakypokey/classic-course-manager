@@ -38,10 +38,14 @@ import {
   DropdownItem,
   UncontrolledDropdown,
   Spinner,
+  Badge,
 } from "reactstrap";
 import { CalendarSection, EventProperties } from "./components/CalendarSection";
 import { URLSearchParams } from "url";
+import { timeAsMs } from "@fullcalendar/core/datelib/marker";
+import { formatIsoTimeString } from "@fullcalendar/core";
 
+const COLORS = ["#264653", "#2a9d8f", "#e9c46a", "#f4a261", "#e76f51"]
 interface APIResponse {
   error: boolean;
   results: APIResponseCourse[];
@@ -70,6 +74,8 @@ interface APIResponseTimingsData {
   title: string;
   crn: number;
   id: number;
+  rrule: string;
+  duration: string;
 }
 
 interface AcademicCalEventProperties {
@@ -133,6 +139,7 @@ function App() {
   const [userData, setUserData] = useState({} as SessionUserData);
   const [selectedCalendar, setSelectedCalendar] = useState(defaultUserCalendarBookItem as UserCalendarBookItem)
   const [loading, setLoading] = useState(false)
+  const [submissionState, setSubmissionState] = useState("Not Submitted")
 
   const valuesDefault = {
     dep_name: "",
@@ -202,6 +209,21 @@ function App() {
     }
   }, [userData])
 
+  const randomColor = (() => {
+    "use strict";
+  
+    const randomInt = (min: number, max: number) => {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    };
+  
+    return () => {
+      var h = randomInt(0, 360);
+      var s = randomInt(42, 98);
+      var l = randomInt(40, 90);
+      return `hsl(${h},${s}%,${l}%)`;
+    };
+  })();
+
   const handleSubmit = (e: React.FormEvent, values: FormValues) => {
     e.preventDefault();
     setRequestError(false);
@@ -243,6 +265,8 @@ function App() {
                 weekday: new Date(timing.start).getDay(),
                 start: new Date(timing.start),
                 end: new Date(timing.end),
+                rrule: timing.rrule,
+                duration: timing.duration,
               };
             }
           );
@@ -254,6 +278,7 @@ function App() {
             professorName: result.professor__name,
             crn: result.crn.toString(),
             timings: processedResponseTimings,
+            color: randomColor()
           } as CourseCardProps;
           }) 
           
@@ -312,6 +337,21 @@ function App() {
     return {
       backgroundColor: cal.color
     } as CSSProperties
+  }
+
+  const handleCalendarExport = () => {
+    const payload = {
+      "basket": basket,
+      "calendar_id": selectedCalendar.id
+    }
+    fetch('/api/user_events', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+      headers: {"Content-Type": "application/json"}
+    }).then(res => res.json()).then((res) => {
+      console.log(res)
+      setBasket([])
+    })
   }
 
   return (
@@ -385,6 +425,8 @@ function App() {
                 })}
               </DropdownMenu>
             </UncontrolledDropdown>
+
+            <Button disabled={!(basket.length > 0)} onClick={handleCalendarExport} color="primary"> Export to Calendar</Button>
           </Col>
         </Row>
       </Container>
