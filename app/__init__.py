@@ -11,7 +11,7 @@ from auth0.v3.authentication import Social
 from authlib.integrations.flask_client import OAuth
 from dotenv import find_dotenv, load_dotenv
 from flask import (Flask, Response, jsonify, redirect, render_template,
-                   request, session, url_for)
+                   request, session, url_for, send_from_directory)
 #from flask_cors import CORS
 from google.auth import crypt, jwt
 from google.auth.credentials import Credentials
@@ -59,9 +59,9 @@ auth0 = OAUTH.register(
 AUTH0_APP_TOKEN = getAuth0AppToken(AUTH0_CLIENT_ID, AUTH0_CLIENT_SECRET)
 
 if os.environ.get("DEPLOYED", "FALSE") == "TRUE":
-    REDIRECT_URI = "https://classic-course-manager.herokuapp.com"
+    REDIRECT_URI = "https://classic-course-manager.herokuapp.com/"
 else:
-    REDIRECT_URI = "http://localhost:5000"
+    REDIRECT_URI = "http://localhost:5000/"
 
 
 def requires_auth(f):
@@ -89,7 +89,17 @@ def index():
     Returns:
         HTML File: GUI entry point for application
     """
-    return render_template('index.html')
+    return APP.send_static_file('index.html')
+
+
+@APP.route('/landing/<path>')
+def send_resources(path):
+    """Index Route
+
+    Returns:
+        HTML File: GUI entry point for application
+    """
+    return send_from_directory('/landing', path)
 
 
 @APP.route('/dashboard')
@@ -157,7 +167,7 @@ def logout():
     session.clear()
     # Redirect user to logout endpoint
     params = {
-        'returnTo': REDIRECT_URI,
+        'returnTo': "http://classic-course-manager.surge.sh",
         'client_id': 'E8QL9VOgqinTgGL7rpgYjkVrWQWhecet'}
     return redirect("https://oakypokey.auth0.com" +
                     '/v2/logout?' + urlencode(params))
@@ -227,8 +237,6 @@ def post_user_events():
     Returns:
         Response: JSON with the success status of each event
 
-    TODO:
-        Remove clean_recurrences, actually clean the recurrances on those dates
     """
     body = request.json
     response = insert_user_calendar_events(
@@ -249,8 +257,6 @@ def clear_classic_events():
 
     Returns:
         Response: JSON containing information about whether operation was successful
-
-    TODO:
 
     """
 
