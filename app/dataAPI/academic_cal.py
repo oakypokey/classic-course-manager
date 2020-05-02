@@ -78,6 +78,40 @@ def getImportantEvents():
         "spring_semester": getStartEnd(spring_semester)
     }
 
+    # Get Thanksgiving dates
+    thanksgiving_period = [event for event in fall_semester if event["summary"].find(
+        "Thanksgiving") != -1 or event["summary"].find("Classes Resume") != -1]
+
+    # Get Spring Break dates
+    springbreak_period = [event for event in spring_semester if event["summary"].find(
+        "Spring Break") != -1 or (event["summary"].find("Classes Resume") != -1 and event['start']['datetime'].split("-")[1] == "03")]
+
+    # Get East Break dates
+    easterbreak_period = [event for event in spring_semester if event["summary"].find(
+        "Easter") != -1 or (event["summary"].find("Classes Resume") != -1 and event['start']['datetime'].split("-")[1] == "04")]
+
+    if len(thanksgiving_period) == 2 and len(springbreak_period) == 2 and len(easterbreak_period) == 2:
+        # Processing spring break and thanksgiving break as they follow the same school policy
+        for breakperiod in [thanksgiving_period, springbreak_period]:
+            start = datetimeparse(
+                breakperiod[0]["start"]["datetime"]) + datetime.timedelta(days=1)
+            end = datetimeparse(breakperiod[1]["start"]["datetime"])
+
+            while start != end:
+                holidays.append(start.strftime("%Y-%m-%d"))
+                start = start + datetime.timedelta(days=1)
+
+        # Processing east break dates
+        easter_start = datetimeparse(
+            easterbreak_period[0]["start"]["datetime"])
+        easter_end = datetimeparse(easterbreak_period[1]["start"]["datetime"])
+
+        while easter_start != easter_end:
+            holidays.append(easter_start.strftime("%Y-%m-%d"))
+            easter_start = easter_start + datetime.timedelta(days=1)
+    else:
+        print("Break period arrays are not long enough.")
+
     result["periods"] = periods
 
     result["holidays"] = holidays
