@@ -59,9 +59,9 @@ auth0 = OAUTH.register(
 AUTH0_APP_TOKEN = getAuth0AppToken(AUTH0_CLIENT_ID, AUTH0_CLIENT_SECRET)
 
 if os.environ.get("DEPLOYED", "FALSE") == "TRUE":
-    REDIRECT_URI = "https://classic-course-manager.herokuapp.com/"
+    REDIRECT_URI = "https://classic-course-manager.herokuapp.com"
 else:
-    REDIRECT_URI = "http://localhost:5000/"
+    REDIRECT_URI = "http://localhost:5000"
 
 
 def requires_auth(f):
