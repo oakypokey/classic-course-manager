@@ -2,6 +2,7 @@
 .pytest_cache
 app/credentials.json
 app/token.pickel
+academic_cal.pickel
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies

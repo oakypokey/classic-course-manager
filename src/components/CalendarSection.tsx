@@ -2,8 +2,10 @@ import React, { useEffect, useState } from "react";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
+import rrulePlugin from "@fullcalendar/rrule";
 
 import "@fullcalendar/core/main.css";
+import "@fullcalendar/daygrid/main.css";
 import "@fullcalendar/timegrid/main.css";
 import { CourseCardProps } from "./CourseCard";
 import { ExtendedEventSourceInput } from "@fullcalendar/core/structs/event-source";
@@ -21,40 +23,18 @@ export interface EventProperties {
   end: Date;
   title: string;
   allDay: boolean;
+  rrule?: string;
+  duration: string;
+  color: string;
 }
 
 export const CalendarSection: React.FC<CalendarSectionProps> = ({
   events,
   academicCalEvents,
 }: CalendarSectionProps) => {
-    const [defaultDate, setDefaultDate] = useState(new Date())
-    const calendarRef: React.RefObject<FullCalendar> = React.createRef()
-
-  useEffect(() => {
-      //TODO: accomodate for course events as well
-      const allEvents = [...academicCalEvents]
-      const calendarObj = calendarRef.current
-      if(calendarObj){
-        const calendarAPI = calendarObj.getApi()
-
-        const sortedEvents = allEvents.sort((a, b) => {
-            return a.start > b.start ? 1 : -1;
-          });
-        
-        if(allEvents.length > 1){
-            calendarAPI.gotoDate(sortedEvents[0].start)
-        }
-        
-      }
-  }, [academicCalEvents])
-
-  const allEvents = academicCalEvents;
-
-  interface resultProperties {
-    startTime: string;
-    endTime: string;
-    defaultDate: Date;
-  }
+  const [defaultDate, setDefaultDate] = useState(new Date());
+  const calendarRef: React.RefObject<FullCalendar> = React.createRef();
+  const [allEvents, setAllEvents] = useState(academicCalEvents);
 
   const getStartEndTime = (events: EventProperties[]): resultProperties => {
     let result = {
@@ -63,16 +43,15 @@ export const CalendarSection: React.FC<CalendarSectionProps> = ({
       defaultDate: new Date(),
     };
 
-    if(events.length < 1){
-        return result
+    if (events.length < 1) {
+      return result;
     }
 
     events.sort((a, b) => {
       return a.start > b.start ? 1 : -1;
     });
 
-    result.defaultDate = events[0].start
-    console.log(result.defaultDate)
+    result.defaultDate = events[0].start;
 
     let startHour = (events[0].start.getHours() - 1).toString();
     let startMin = events[0].start.getMinutes().toString();
@@ -89,8 +68,8 @@ export const CalendarSection: React.FC<CalendarSectionProps> = ({
 
     if (
       !(
-        events[0].start.getHours() - events[events.length - 1].end.getHours() >=
-          4 ||
+        events[events.length - 1].end.getHours() - events[0].start.getHours() >=
+          7 ||
         lateHours ||
         earlyHours
       )
@@ -102,16 +81,81 @@ export const CalendarSection: React.FC<CalendarSectionProps> = ({
     return result;
   };
 
+  const [maxMinTime, setMaxMinTime] = useState(getStartEndTime(allEvents));
+
+  useEffect(() => {
+    //TODO: accomodate for student events as well
+    const allEvents = [...academicCalEvents];
+    const calendarObj = calendarRef.current;
+    if (calendarObj) {
+      const calendarAPI = calendarObj.getApi();
+
+      const sortedEvents = allEvents.sort((a, b) => {
+        return a.start > b.start ? 1 : -1;
+      });
+
+      if (allEvents.length > 1) {
+        calendarAPI.gotoDate("2020-09-15");
+      }
+    }
+
+    setAllEvents(academicCalEvents);
+  }, [academicCalEvents]);
+
+  interface resultProperties {
+    startTime: string;
+    endTime: string;
+    defaultDate: Date;
+  }
+
+  useEffect(() => {
+    let newEventState: EventProperties[] = [];
+
+    const timeFix = events.map((event) => {
+      let newEvent = event;
+      let newTimings = event.timings?.map((e) => {
+        return {
+          start: new Date(e.start),
+          end: new Date(e.end),
+          weekday: e.weekday,
+          rrule: e.rrule,
+          duration: e.duration,
+        };
+      });
+
+      newEvent.timings = newTimings;
+      return newEvent;
+    });
+
+    timeFix.forEach((course) => {
+      course.timings?.forEach((session) => {
+        newEventState.push({
+          start: session.start,
+          end: session.end,
+          title: course.courseName,
+          allDay: false,
+          rrule: session.rrule,
+          duration: session.duration,
+          color: course.color,
+        });
+      });
+    });
+
+    console.log("this is new event state", newEventState);
+    setAllEvents([...academicCalEvents, ...newEventState]);
+    setMaxMinTime(getStartEndTime([...newEventState]));
+  }, [events]);
+
   return (
     <>
       <FullCalendar
         events={allEvents}
         defaultView="timeGridWeek"
-        plugins={[timeGridPlugin, interactionPlugin]}
+        plugins={[timeGridPlugin, interactionPlugin, rrulePlugin]}
         weekends={false}
         slotDuration={{ minutes: 30 }}
-        minTime={getStartEndTime(allEvents).startTime}
-        maxTime={getStartEndTime(allEvents).endTime}
+        minTime={"07:30"}
+        maxTime={"22:45"}
         slotEventOverlap={true}
         allDaySlot={true}
         slotLabelInterval={{ minutes: 90 }}
