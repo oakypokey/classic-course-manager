@@ -39,13 +39,18 @@ import {
   UncontrolledDropdown,
   Spinner,
   Badge,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
 } from "reactstrap";
 import { CalendarSection, EventProperties } from "./components/CalendarSection";
 import { URLSearchParams } from "url";
 import { timeAsMs } from "@fullcalendar/core/datelib/marker";
 import { formatIsoTimeString } from "@fullcalendar/core";
+import { InformationModal } from "./components/InformationModal";
 
-const COLORS = ["#264653", "#2a9d8f", "#e9c46a", "#f4a261", "#e76f51"]
+const COLORS = ["#264653", "#2a9d8f", "#e9c46a", "#f4a261", "#e76f51"];
 interface APIResponse {
   error: boolean;
   results: APIResponseCourse[];
@@ -109,15 +114,15 @@ export interface SessionUserData {
   picture: string;
   sub: string;
   updated_at: string;
-  calendar_book?: UserCalendarBookItem[]
+  calendar_book?: UserCalendarBookItem[];
 }
 
 export interface UserCalendarBookItem {
-  id: string
-  title: string
-  color: string
-  primary: boolean
-  selected: boolean
+  id: string;
+  title: string;
+  color: string;
+  primary: boolean;
+  selected: boolean;
 }
 
 const defaultUserCalendarBookItem = {
@@ -125,30 +130,38 @@ const defaultUserCalendarBookItem = {
   title: "Select a calendar",
   color: "#f0f0f0",
   primary: false,
-  selected: false
-}
+  selected: false,
+};
 
 function App() {
   const [inputCRN, setInputCRN] = useState("");
   const [basket, setBasket] = useState([] as CourseCardProps[]);
-  const [search, setSearch] = useState([] as CourseCardProps[])
+  const [search, setSearch] = useState([] as CourseCardProps[]);
   const [requestError, setRequestError] = useState(false);
   const [academicCalEvents, setAcademicCalEvents] = useState(
     [] as EventProperties[]
   );
   const [userData, setUserData] = useState({} as SessionUserData);
-  const [selectedCalendar, setSelectedCalendar] = useState(defaultUserCalendarBookItem as UserCalendarBookItem)
-  const [loading, setLoading] = useState(false)
-  const [submissionState, setSubmissionState] = useState("Not Submitted")
+  const [selectedCalendar, setSelectedCalendar] = useState(
+    defaultUserCalendarBookItem as UserCalendarBookItem
+  );
+  const [loading, setLoading] = useState(false);
+  const [exportLoading, setExportLoading] = useState(false);
+  const [message, setMessage] = useState("");
+
+  const [modal, setModal] = useState(false);
+  const [execute, setExecute] = useState(false);
+
+  const toggle = () => setModal(!modal);
 
   const valuesDefault = {
     dep_name: "",
     crn: "",
     prof_name: "",
-    class_name:""
-  } as FormValues
+    class_name: "",
+  } as FormValues;
 
-  const [values, setValues] = useState(valuesDefault)
+  const [values, setValues] = useState(valuesDefault);
 
   //Just like component did mount <3
   useEffect(() => {
@@ -187,35 +200,41 @@ function App() {
         fetch("/api/user_data")
           .then((res) => res.json())
           .then((data) => {
-            let userCalBook = data.user_calendar_book
-            userCalBook.sort((cal_a: UserCalendarBookItem, cal_b: UserCalendarBookItem) => {
-              return (cal_a.selected === cal_b.selected) ? 0 : cal_a.selected ? -1 : 1; 
-            })
+            let userCalBook = data.user_calendar_book;
+            userCalBook.sort(
+              (cal_a: UserCalendarBookItem, cal_b: UserCalendarBookItem) => {
+                return cal_a.selected === cal_b.selected
+                  ? 0
+                  : cal_a.selected
+                  ? -1
+                  : 1;
+              }
+            );
             const userData = {
               ...data.session,
-              calendar_book: userCalBook
-            }
+              calendar_book: userCalBook,
+            };
             setUserData(userData as SessionUserData);
           });
       });
   }, []);
 
   useEffect(() => {
-    if(userData.calendar_book){
-      const primaryCal = userData.calendar_book.filter((cal) =>{
-        return cal.primary
-      })[0]
-      setSelectedCalendar(primaryCal)
+    if (userData.calendar_book) {
+      const primaryCal = userData.calendar_book.filter((cal) => {
+        return cal.primary;
+      })[0];
+      setSelectedCalendar(primaryCal);
     }
-  }, [userData])
+  }, [userData]);
 
   const randomColor = (() => {
     "use strict";
-  
+
     const randomInt = (min: number, max: number) => {
       return Math.floor(Math.random() * (max - min + 1)) + min;
     };
-  
+
     return () => {
       var h = randomInt(0, 360);
       var s = randomInt(42, 98);
@@ -227,61 +246,61 @@ function App() {
   const handleSubmit = (e: React.FormEvent, values: FormValues) => {
     e.preventDefault();
     setRequestError(false);
-    setLoading(true)
-    setSearch([])
+    setLoading(true);
+    setSearch([]);
     if (
       basket.filter((course) => {
         return course.crn == inputCRN;
       }).length < 1
     ) {
       fetch("/api/getinfo", {
-        method: 'POST',
+        method: "POST",
         body: JSON.stringify(values),
-        headers: {"Content-Type": "application/json"}
+        headers: { "Content-Type": "application/json" },
       })
         .then((res: Response) => {
           try {
             let result: Promise<APIResponse> = res.json();
             return result;
-          }
-          catch(err) {
-            console.log(err)
-            throw err
+          } catch (err) {
+            console.log(err);
+            throw err;
           }
         })
         .then((result) => {
           if (result.error) {
             throw new Error(result.message);
           }
-          console.log(result)
+          console.log(result);
           return result;
         })
         .then((response) => {
-          const courseCards = response.results.map((result: APIResponseCourse) => {
-            let processedResponse: CourseCardProps | null = null;
-          let processedResponseTimings: CourseTimings[] = result.timings.map(
-            (timing) => {
+          const courseCards = response.results.map(
+            (result: APIResponseCourse) => {
+              let processedResponse: CourseCardProps | null = null;
+              let processedResponseTimings: CourseTimings[] = result.timings.map(
+                (timing) => {
+                  return {
+                    weekday: new Date(timing.start).getDay(),
+                    start: new Date(timing.start),
+                    end: new Date(timing.end),
+                    rrule: timing.rrule,
+                    duration: timing.duration,
+                  };
+                }
+              );
+
               return {
-                weekday: new Date(timing.start).getDay(),
-                start: new Date(timing.start),
-                end: new Date(timing.end),
-                rrule: timing.rrule,
-                duration: timing.duration,
-              };
+                courseName: result.name,
+                subjectName: result.sname,
+                section: result.section,
+                professorName: result.professor__name,
+                crn: result.crn.toString(),
+                timings: processedResponseTimings,
+                color: randomColor(),
+              } as CourseCardProps;
             }
           );
-
-          return {
-            courseName: result.name,
-            subjectName: result.sname,
-            section: result.section,
-            professorName: result.professor__name,
-            crn: result.crn.toString(),
-            timings: processedResponseTimings,
-            color: randomColor()
-          } as CourseCardProps;
-          }) 
-          
 
           console.log(JSON.stringify(courseCards));
 
@@ -292,8 +311,8 @@ function App() {
           console.log("OOOO", err);
         })
         .finally(() => {
-          setValues(valuesDefault)
-          setLoading(false)
+          setValues(valuesDefault);
+          setLoading(false);
         });
     } else {
       setRequestError(true);
@@ -303,8 +322,8 @@ function App() {
   const handleRemoveButtonClick = (crn: string) => {
     let newState = basket;
     newState = newState.filter((course) => {
-      if(course.crn === crn){
-        setSearch([...search, course])
+      if (course.crn === crn) {
+        setSearch([...search, course]);
       }
       return course.crn !== crn;
     });
@@ -314,16 +333,18 @@ function App() {
 
   const handleAddButtonClick = (crn: string) => {
     //remove from search bar
-    setSearch(search.filter((course) => {
-      return course.crn !== crn;
-    }))
+    setSearch(
+      search.filter((course) => {
+        return course.crn !== crn;
+      })
+    );
 
     //add to basket
     const newClass = search.filter((course) => {
       return course.crn === crn;
     });
     setBasket([...basket, ...newClass]);
-  }
+  };
 
   const sectionStyle: CSSProperties = {
     borderColor: "grey", //"#a6e3e9",
@@ -335,28 +356,114 @@ function App() {
 
   const getCalSelectStyle = (cal: UserCalendarBookItem) => {
     return {
-      backgroundColor: cal.color
-    } as CSSProperties
-  }
+      backgroundColor: cal.color,
+    } as CSSProperties;
+  };
 
   const handleCalendarExport = () => {
+    setExportLoading(true);
     const payload = {
-      "basket": basket,
-      "calendar_id": selectedCalendar.id
-    }
-    fetch('/api/user_events', {
-      method: 'POST',
+      basket: basket,
+      calendar_id: selectedCalendar.id,
+    };
+    fetch("/api/user_events", {
+      method: "POST",
       body: JSON.stringify(payload),
-      headers: {"Content-Type": "application/json"}
-    }).then(res => res.json()).then((res) => {
-      console.log(res)
-      setBasket([])
+      headers: { "Content-Type": "application/json" },
     })
-  }
+      .then((res) => res.json())
+      .then((res) => {
+        console.log(res);
+        let messageString: string[] = res.body.map((event: any) => {
+          return event.summary;
+        });
+
+        messageString = messageString.filter(
+          (v, i) => messageString.indexOf(v) === i
+        );
+        const finalMessage =
+          "The following classes have been added:!" + messageString.join("!");
+        setMessage(finalMessage);
+        setExportLoading(false);
+        setBasket([]);
+      });
+  };
+
+  const handleClearEvents = () => {
+    setExportLoading(true);
+    fetch("/api/clear_events", {
+      method: "POST",
+      body: JSON.stringify({ calendar_id: selectedCalendar.id }),
+      headers: { "Content-Type": "application/json" },
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        console.log(res);
+        setExportLoading(false);
+        setMessage("All Classic Events were deleted successfully!");
+      })
+      .catch((e) => {
+        console.log(e);
+        setExportLoading(false);
+        setMessage("An error occured");
+      });
+  };
+
+  const handleExportButtonClick = () => {
+    setExecute(true);
+    setMessage("You are about to export your basket. Are you sure?");
+    toggle();
+  };
+
+  const handleClearCalendarClick = () => {
+    setExecute(false);
+    setMessage(
+      "Would you like to clear all Classic events for: " +
+        selectedCalendar.title +
+        "?"
+    );
+    toggle();
+  };
+
+  const deleteEventButton = {
+    type: "danger",
+    text: "Delete Events",
+  };
+
+  const exportButton = {
+    type: "success",
+    text: "Export classes",
+  };
 
   return (
     <div className="App">
       <Navigation userData={userData} />
+      {execute ? (
+        <InformationModal
+          modal={modal}
+          toggle={toggle}
+          setModal={setModal}
+          execute={handleCalendarExport}
+          loading={exportLoading}
+          message={message}
+          setMessage={setMessage}
+          title={"Calendar Export"}
+          buttonSettings={exportButton}
+        />
+      ) : (
+        <InformationModal
+          modal={modal}
+          toggle={toggle}
+          setModal={setModal}
+          execute={handleClearEvents}
+          loading={exportLoading}
+          message={message}
+          setMessage={setMessage}
+          title={"Clear Classic Events"}
+          buttonSettings={deleteEventButton}
+        />
+      )}
+
       <Container fluid>
         <Row>
           <Col xl={12}>
@@ -376,12 +483,18 @@ function App() {
           </Col>
         </Row>
         <Row>
-          <Col xl={2} style={{...sectionStyle, overflowY: "auto"}}>
-            {loading ? <Spinner style={{ width: '8rem', height: '8rem', marginTop: "100%" }}/> : ""}
+          <Col xl={2} style={{ ...sectionStyle, overflowY: "auto" }}>
+            {loading ? (
+              <Spinner
+                style={{ width: "8rem", height: "8rem", marginTop: "100%" }}
+              />
+            ) : (
+              ""
+            )}
             {search.map((course, index) => {
               //prevents showing ones we already have added
-              let basketCRNs = basket.map(course => course.crn)
-              if(basketCRNs.includes(course.crn)){
+              let basketCRNs = basket.map((course) => course.crn);
+              if (basketCRNs.includes(course.crn)) {
                 return;
               }
 
@@ -413,20 +526,37 @@ function App() {
             />
           </Col>
           <Col xl={2} style={sectionStyle}>
-            <UncontrolledDropdown
-              group
-              size="md"
-            >
-              <DropdownToggle style={getCalSelectStyle(selectedCalendar)} caret> {selectedCalendar.title}</DropdownToggle>
+            <UncontrolledDropdown group size="md">
+              <DropdownToggle style={getCalSelectStyle(selectedCalendar)} caret>
+                {" "}
+                {selectedCalendar.title}
+              </DropdownToggle>
               <DropdownMenu>
                 {userData.calendar_book?.map((cal, index) => {
-                  const selected = cal.id == selectedCalendar.id
-                  return <DropdownItem active={selected} key={index} onClick={() => setSelectedCalendar(cal)}>{cal.title}</DropdownItem>
+                  const selected = cal.id == selectedCalendar.id;
+                  return (
+                    <DropdownItem
+                      active={selected}
+                      key={index}
+                      onClick={() => setSelectedCalendar(cal)}
+                    >
+                      {cal.title}
+                    </DropdownItem>
+                  );
                 })}
               </DropdownMenu>
             </UncontrolledDropdown>
 
-            <Button disabled={!(basket.length > 0)} onClick={handleCalendarExport} color="primary"> Export to Calendar</Button>
+            <Button
+              disabled={!(basket.length > 0)}
+              onClick={handleExportButtonClick}
+              color="primary"
+            >
+              Export to Calendar
+            </Button>
+            <Button color="danger" onClick={handleClearCalendarClick}>
+              Clear Calendar
+            </Button>
           </Col>
         </Row>
       </Container>

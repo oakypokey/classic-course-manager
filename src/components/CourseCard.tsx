@@ -10,11 +10,11 @@ import {
 } from "reactstrap";
 
 export interface CourseTimings {
-  weekday: number
-  start: Date
-  end: Date
-  rrule?: string
-  duration: string
+  weekday: number;
+  start: Date;
+  end: Date;
+  rrule?: string;
+  duration: string;
 }
 
 export interface CourseCardProps {
@@ -25,24 +25,24 @@ export interface CourseCardProps {
   timings?: CourseTimings[];
   conflict?: boolean;
   crn: string;
-  handleRemoveButtonClick?: any
-  handleAddButtonClick?: any
-  basket: boolean
-  color: string
+  handleRemoveButtonClick?: any;
+  handleAddButtonClick?: any;
+  basket: boolean;
+  color: string;
 }
 
 const TimingStyle: React.CSSProperties = {
-  fontSize: "0.85vw"
+  fontSize: "0.85vw",
 };
 
 const ConflictStyle: React.CSSProperties = {
-  width: "40%"
+  width: "40%",
 };
 
 const getWeekDayName = (number: number) => {
-  const weekdays = ["SUN", "MON", "TUES", "WED", "THURS", "FRI"]
-  return weekdays[number]
-}
+  const weekdays = ["SUN", "MON", "TUES", "WED", "THURS", "FRI"];
+  return weekdays[number];
+};
 
 export const CourseCard: React.FC<CourseCardProps> = ({
   courseName,
@@ -55,28 +55,27 @@ export const CourseCard: React.FC<CourseCardProps> = ({
   handleAddButtonClick,
   crn,
   basket,
-  color
+  color,
 }: CourseCardProps) => {
-
   const CourseCardStyle: React.CSSProperties = {
     padding: "10px",
     margin: "5px",
     textAlign: "left",
     borderRadius: "5px",
     borderColor: "#000000",
-    backgroundColor: color
+    backgroundColor: color,
   };
 
   const getTimeString = (date: Date) => {
     let hours = date.getHours();
     let minutes: string | number = date.getMinutes();
-    let ampm = hours >= 12 ? 'pm' : 'am';
+    let ampm = hours >= 12 ? "pm" : "am";
     hours = hours % 12;
     hours = hours ? hours : 12; // the hour '0' should be '12'
-    minutes = minutes < 10 ? '0'+minutes : minutes;
-    var strTime = hours + ':' + minutes + ' ' + ampm;
+    minutes = minutes < 10 ? "0" + minutes : minutes;
+    var strTime = hours + ":" + minutes + " " + ampm;
     return strTime;
-  }
+  };
 
   return (
     <>
@@ -92,23 +91,40 @@ export const CourseCard: React.FC<CourseCardProps> = ({
           )}
         </CardTitle>
         <CardSubtitle>
-            {subjectName} - {section}
-          </CardSubtitle>
-          <CardSubtitle>Professor {professorName}</CardSubtitle>
-          <br/>
-          {timings?.map((time, index) => {
-            return (
-              <CardSubtitle key={index} style={TimingStyle}>
-                {getWeekDayName(time.weekday)}: {getTimeString(time.start)} to {getTimeString(time.end)}
-              </CardSubtitle>
-            );
-          })}
-          {
-            basket ? <Button color="danger" onClick={() => {handleRemoveButtonClick(crn)}}> Remove from Basket </Button> : <Button color="primary" onClick={() => {handleAddButtonClick(crn)}}> Add to Basket </Button>
-          }
-        
+          {subjectName} - {section}
+        </CardSubtitle>
+        <CardSubtitle>Professor {professorName}</CardSubtitle>
+        <br />
+        {timings?.map((time, index) => {
+          return (
+            <CardSubtitle key={index} style={TimingStyle}>
+              {getWeekDayName(time.weekday)}: {getTimeString(time.start)} to{" "}
+              {getTimeString(time.end)}
+            </CardSubtitle>
+          );
+        })}
+        {basket ? (
+          <Button
+            color="danger"
+            onClick={() => {
+              handleRemoveButtonClick(crn);
+            }}
+          >
+            {" "}
+            Remove from Basket{" "}
+          </Button>
+        ) : (
+          <Button
+            color="primary"
+            onClick={() => {
+              handleAddButtonClick(crn);
+            }}
+          >
+            {" "}
+            Add to Basket{" "}
+          </Button>
+        )}
       </Card>
     </>
   );
 };
-

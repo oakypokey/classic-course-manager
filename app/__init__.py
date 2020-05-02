@@ -24,9 +24,9 @@ from werkzeug.exceptions import HTTPException
 from app.dataAPI.academic_cal import (getAcademicCalendarInfo,
                                       getImportantEvents)
 from app.dataAPI.auth0_api import getAuth0AppToken, getAuth0UserData
-from app.dataAPI.course_methods import getAllCourseInfo
+from app.dataAPI.course_methods import get_all_course_info
 from app.dataAPI.user_cal_methods import (clean_recurrences,
-                                          clear_all_classic_events,
+                                          clear_multiple_classic_events,
                                           get_classic_generated_events,
                                           get_user_calendar_book,
                                           get_user_calendar_events,
@@ -172,7 +172,7 @@ def get_info():
     """
     values = request.json
 
-    return Response(getAllCourseInfo(values), mimetype='application/json')
+    return Response(get_all_course_info(values), mimetype='application/json')
 
 
 @APP.route('/api/getacademiccalinfo')
@@ -242,7 +242,7 @@ def post_user_events():
     return Response(json.dumps(response1), mimetype="application/json")
 
 
-@APP.route('/api/clear_events')
+@APP.route('/api/clear_events', methods=['POST'])
 @requires_auth
 def clear_classic_events():
     """Clear events created by Classic for the associated calendar
@@ -251,14 +251,20 @@ def clear_classic_events():
         Response: JSON containing information about whether operation was successful
 
     TODO:
-        Remove hard-coded calendar_id
+
     """
+
+    values = request.json
+
+    if "calendar_id" not in values.keys():
+        return Response(status=400)
+
     events = get_classic_generated_events(
         session['google-idap']['access_token'],
-        "cod11@georgetown.edu")
+        values["calendar_id"])
     print([event['id'] for event in events])
-    response = clear_all_classic_events(
-        session['google-idap']['access_token'], "cod11@georgetown.edu", [
+    response = clear_multiple_classic_events(
+        session['google-idap']['access_token'], values["calendar_id"], [
             event['id'] for event in events])
     response = {"data": response}
     response1 = json.dumps(response)
