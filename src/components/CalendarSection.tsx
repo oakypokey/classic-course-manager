@@ -95,7 +95,7 @@ export const CalendarSection: React.FC<CalendarSectionProps> = ({
       });
 
       if (allEvents.length > 1) {
-        calendarAPI.gotoDate(sortedEvents[0].start);
+        calendarAPI.gotoDate("2020-09-15");
       }
     }
 
@@ -148,8 +148,6 @@ export const CalendarSection: React.FC<CalendarSectionProps> = ({
 
   return (
     <>
-      {maxMinTime.startTime}
-      {maxMinTime.endTime}
       <FullCalendar
         events={allEvents}
         defaultView="timeGridWeek"

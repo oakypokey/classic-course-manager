@@ -20,10 +20,10 @@ interface CourseSearchComponents {
 }
 
 export interface FormValues {
-  dep_name: string
-  crn: string
-  prof_name: string
-  class_name: string
+  dep_name: string;
+  crn: string;
+  prof_name: string;
+  class_name: string;
 }
 
 export const CourseSearch: React.FC<CourseSearchComponents> = ({
@@ -32,36 +32,38 @@ export const CourseSearch: React.FC<CourseSearchComponents> = ({
   setValues,
   values,
 }: CourseSearchComponents) => {
-
-  const handleInputChange = (name: 'crn' | 'dep_name' | 'prof_name' | 'class_name', value: string) =>{
-    switch(name){
-      case 'crn':
-        setValues({...values, crn: value})
+  const handleInputChange = (
+    name: "crn" | "dep_name" | "prof_name" | "class_name",
+    value: string
+  ) => {
+    switch (name) {
+      case "crn":
+        setValues({ ...values, crn: value });
         break;
-      case 'class_name':
-        setValues({...values, class_name: value})
+      case "class_name":
+        setValues({ ...values, class_name: value });
         break;
-      case 'prof_name':
-        setValues({...values, prof_name: value})
+      case "prof_name":
+        setValues({ ...values, prof_name: value });
         break;
-      case 'class_name':
-        setValues({...values, class_name: value})
+      case "class_name":
+        setValues({ ...values, class_name: value });
         break;
     }
-  }
-  
+  };
+
   const handleFormSubmit = (event: React.FormEvent) => {
-    console.log(values)
-    handleSubmit(event, values)
-  }
+    console.log(values);
+    handleSubmit(event, values);
+  };
 
   return (
     <>
-      <Container fluid style={{background: "#cbf1f5"}}>
+      <Container fluid style={{ background: "#cbf1f5" }}>
         <Form
           onSubmit={(e) => handleFormSubmit(e)}
           data-testid={"class-search-form"}
-          style={{padding: "13px", width: "100%"}}
+          style={{ padding: "13px", width: "100%" }}
         >
           <Row>
             <Col xl={2}>
@@ -72,14 +74,14 @@ export const CourseSearch: React.FC<CourseSearchComponents> = ({
                 <Input
                   name={"crn"}
                   value={values.crn}
-                  onChange={(e) => handleInputChange('crn', e.target.value)}
+                  onChange={(e) => handleInputChange("crn", e.target.value)}
                   placeholder="12345"
                   data-testid={"crn-input"}
                 />
               </InputGroup>
             </Col>
 
-            <Col xl={2}>
+            <Col xl={4}>
               <InputGroup>
                 <InputGroupAddon addonType="prepend">
                   <InputGroupText>Class Name</InputGroupText>
@@ -87,27 +89,15 @@ export const CourseSearch: React.FC<CourseSearchComponents> = ({
                 <Input
                   name={"class-name"}
                   value={values.class_name}
-                  onChange={(e) => handleInputChange('class_name', e.target.value)}
-                  placeholder="12345"
+                  onChange={(e) =>
+                    handleInputChange("class_name", e.target.value)
+                  }
+                  placeholder="Intro to Comp Science: Python"
                   data-testid={"class-input"}
                 />
               </InputGroup>
             </Col>
-            <Col xl={3}>
-              <InputGroup>
-                <InputGroupAddon addonType="prepend">
-                  <InputGroupText>Department</InputGroupText>
-                </InputGroupAddon>
-                <Input
-                  name={"dep-name"}
-                  value={values.dep_name}
-                  onChange={(e) => handleInputChange('dep_name', e.target.value)}
-                  placeholder="12345"
-                  data-testid={"dep-input"}
-                />
-              </InputGroup>
-            </Col>
-            <Col xl={3}>
+            <Col xl={4}>
               <InputGroup>
                 <InputGroupAddon addonType="prepend">
                   <InputGroupText>Professor Name</InputGroupText>
@@ -115,14 +105,19 @@ export const CourseSearch: React.FC<CourseSearchComponents> = ({
                 <Input
                   name={"prof-name"}
                   value={values.prof_name}
-                  onChange={(e) => handleInputChange('prof_name', e.target.value)}
-                  placeholder="12345"
+                  onChange={(e) =>
+                    handleInputChange("prof_name", e.target.value)
+                  }
+                  placeholder="Mike Rossetti"
                   data-testid={"prof-input"}
                 />
               </InputGroup>
             </Col>
             <Col xl={2}>
-              <Button type="submit" color="primary"> Search </Button> 
+              <Button type="submit" color="primary">
+                {" "}
+                Search{" "}
+              </Button>
             </Col>
           </Row>
         </Form>
