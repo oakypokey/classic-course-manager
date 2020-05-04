@@ -74,13 +74,14 @@ def requires_auth(f):
     def decorated(*args, **kwargs):
         if 'profile' not in session:
             # Redirect to Login page here
-            return redirect('/')
+            return redirect('https://classic-course-manager.herokuapp.com/login')
         return f(*args, **kwargs)
 
     return decorated
 
 ###### PAGE ROUTES ######
 @APP.route('/')
+@requires_auth
 def index():
     """Index Route
 
