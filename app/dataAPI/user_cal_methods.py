@@ -125,7 +125,8 @@ def insert_user_calendar_events(access_token, calendar_id, events_array):
         "Accept": "application/json",
         "Content-Type": "application/json"}
 
-    # Create a generic template so that if there is missing info it is filled in already
+    # Create a generic template so that if there is missing info it is filled
+    # in already
     processed_event_data_template = {
         'end': {
             'dateTime': '2020-04-20T15:00:00',
@@ -155,7 +156,8 @@ def insert_user_calendar_events(access_token, calendar_id, events_array):
             event['section'] + " with Professor " + \
             event['professorName'] + " | CRN: " + event['crn']
 
-        # Iterate over the course timings for each course to create a recurring event for each
+        # Iterate over the course timings for each course to create a recurring
+        # event for each
         for course_session in event['timings']:
             processed_event_data = processed_event_data_stub
             processed_event_data['recurrence'] = [

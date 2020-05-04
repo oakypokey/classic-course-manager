@@ -12,7 +12,6 @@ from authlib.integrations.flask_client import OAuth
 from dotenv import find_dotenv, load_dotenv
 from flask import (Flask, Response, jsonify, redirect, render_template,
                    request, session, url_for, send_from_directory)
-#from flask_cors import CORS
 from google.auth import crypt, jwt
 from google.auth.credentials import Credentials
 from google.auth.transport import requests
@@ -38,7 +37,6 @@ AUTH0_CLIENT_SECRET = os.environ.get("AUTH0_CLIENT_SECRET")
 
 APP = Flask(__name__, static_folder='../build', static_url_path='/')
 APP.secret_key = AUTH0_CLIENT_SECRET
-# CORS(APP)  # delete later
 
 
 OAUTH = OAuth(APP)
@@ -90,16 +88,6 @@ def index():
         HTML File: GUI entry point for application
     """
     return APP.send_static_file('index.html')
-
-
-@APP.route('/landing/<path>')
-def send_resources(path):
-    """Index Route
-
-    Returns:
-        HTML File: GUI entry point for application
-    """
-    return send_from_directory('/landing', path)
 
 
 @APP.route('/dashboard')
@@ -206,22 +194,12 @@ def user_data():
     """
     response = {}  # just to init
     # Store the user information in flask session.
-    response["session"] = session['jwt_payload']
-    response['full_user_data'] = session['full_user_data']
-    response['user_calendar_book'] = get_user_calendar_book(
-        session['google-idap']['access_token'])
     try:
-        """
-        response2 = get_user_calendar_events(
-            session['google-idap']['access_token'], "cod11@georgetown.edu")
-
-        response['calendar-book'] = response1
-        response['calendar-events'] = response2
-        insert_user_calendar_events(
-            session['google-idap']['access_token'], {"id": "cod11@georgetown.edu"}, [1]) """
-
+        response["session"] = session['jwt_payload']
+        response['full_user_data'] = session['full_user_data']
+        response['user_calendar_book'] = get_user_calendar_book(
+            session['google-idap']['access_token'])
         response["academic_cal"] = getAcademicCalendarInfo()
-        response["important_events"] = getImportantEvents()
 
     except Exception as e:
         print(e, e.__traceback__.tb_lineno)

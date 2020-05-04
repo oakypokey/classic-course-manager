@@ -180,16 +180,16 @@ def getAcademicCalendarInfo():
         return({"error": True, "message": e})
 
 
-def readFromFile():
+def readFromFile(fileName="academic_cal.pickle"):
     """Reads academic calendar info from file
 
     Returns:
         dict: dict with all the academic cal events under attr 'events'
     """
     try:
-        if os.path.exists('academic_cal.pickle'):
+        if os.path.exists(fileName):
             print("Reading from file...")
-            with open('academic_cal.pickle', 'rb') as academic_cal_file:
+            with open(fileName, 'rb') as academic_cal_file:
                 cachedResponse = pickle.load(academic_cal_file)
             return cachedResponse
         else:
@@ -200,7 +200,7 @@ def readFromFile():
         return {"error": True, "message": e}
 
 
-def writeToFile(content):
+def writeToFile(content, fileName="academic_cal.pickle"):
     """Pickles academic cal response for later use
 
     Args:
@@ -210,7 +210,7 @@ def writeToFile(content):
         bool: whether or not the operation was successful
     """
     try:
-        with open('academic_cal.pickle', 'wb') as academic_cal_file:
+        with open(fileName, 'wb') as academic_cal_file:
             pickle.dump(content, academic_cal_file)
 
         print("File was updated.")
