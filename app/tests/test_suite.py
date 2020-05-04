@@ -64,6 +64,8 @@ def test_unpickling_academic_cal_response(academic_cal_info):
 # Important events function returns correct events
 
 
+@pytest.mark.skipif(
+    CI_ENV == True, reason="to avoid making requests on CI server that require auth")
 def test_get_important_events():
     important_events = getImportantEvents()
     assert 'important_events' in important_events
@@ -76,6 +78,8 @@ def test_get_important_events():
 # ~~~Classy Methods~~~
 
 # Make a request as a fixture for a basket of events
+@pytest.mark.skipif(
+    CI_ENV == True, reason="to avoid making requests on CI server that require auth")
 @pytest.fixture
 def course_basket_info():
     sample_search = {
@@ -102,8 +106,8 @@ def course_basket_failed_info():
     return info
 
 # Check that the dates are within the next year
-
-
+@pytest.mark.skipif(
+    CI_ENV == True, reason="to avoid making requests on CI server that require auth")
 def test_good_basket(course_basket_info):
     assert not course_basket_info["error"]
     assert "results" in course_basket_info
